@@ -3,3 +3,4 @@ node_modules
 # Add your new entries here
 *.log
 dist/
+.DS_Store
