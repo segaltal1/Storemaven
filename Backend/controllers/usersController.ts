@@ -1,50 +1,72 @@
 import {Request, Response} from 'express';
-import users from '../db/users.json'
 import {getGenderByUsername} from "../services/genderService";
 import {getRandomUserData} from "../services/randomUserData";
-import {UserType} from "../types";
+import {UserModel} from "../models/userModel";
+import {UserScoreModel} from "../models/userScoreModel";
 
-export const getUsers = async (req: Request, res: Response) => {
+
+export const getUsersScores = async (req: Request, res: Response) => {
 
     try {
-        const sortedUsers = users.sort((a: UserType, b: UserType) => b.stepsCompleted - a.stepsCompleted);
-        res.send({users: sortedUsers});
+        const usersScores = await UserScoreModel.find()
+            .sort({stepsCompleted: -1})
+            .limit(100)
+
+        res.send({usersScores});
     } catch (error) {
         res.status(500).send('Error in the server' + error);
     }
 }
 
-export const saveUser = async (req: Request, res: Response) => {
+export const createUser = async (req: Request, res: Response) => {
 
     try {
-        const {username, stepsCompleted} = req.body;
-        if (!username || isNaN(Number(stepsCompleted))) {
+        const {username} = req.body;
+        if (!username) {
             return res.status(400).json({error: 'Invalid parameters'});
         }
 
-        // If the user exists, update the stepsCompleted
-        const userIndex = users.findIndex(user => user.username === username);
-        if (userIndex !== -1) {
-            users[userIndex].stepsCompleted = Number(stepsCompleted);
-            return res.send({updatedUser: users[userIndex]});
-        } else {
-            const genderRes = await getGenderByUsername(username);
-            const mockData = await getRandomUserData();
-
-            let newUser = {
-                id: users.length + 1,
-                username,
-                stepsCompleted: Number(stepsCompleted),
-                gender: genderRes ?? 'undetermined',
-                email: mockData?.email ?? '',
-                lastName: mockData?.lastName ?? '',
-                city: mockData?.city ?? ''
-            };
-
-            users.push(newUser);
-            return res.send({newUser});
+        const existingUser = await UserModel.findOne({username});
+        if (existingUser) {
+            return res.status(400).json({error: 'User already exists'});
         }
 
+
+        const genderRes = await getGenderByUsername(username);
+        const mockData = await getRandomUserData();
+
+        let newUser = {
+            username,
+            gender: genderRes ?? 'undetermined',
+            email: mockData?.email ?? '',
+            lastName: mockData?.lastName ?? '',
+            city: mockData?.city ?? ''
+        };
+
+        await UserModel.create(newUser);
+        await UserScoreModel.create({username, stepsCompleted: 0});
+
+        return res.send({newUser});
+
+    } catch (e) {
+        return res.status(500).json({error: 'Error in the server' + e});
+    }
+}
+
+export const updateUserScore = async (req: Request, res: Response) => {
+    try {
+        const {userId, stepsCompleted} = req.body;
+
+        if (!userId|| isNaN(Number(stepsCompleted))) {
+            return res.status(400).json({error: 'Invalid parameters'});
+        }
+
+        const updatedUserCore = await UserScoreModel.findByIdAndUpdate(userId, {stepsCompleted});
+        if (!updatedUserCore) {
+            return res.status(404).json({error: 'User not found'});
+        }
+
+        return res.send({message: 'User score updated', updatedUserCore});
     } catch (e) {
         return res.status(500).json({error: 'Error in the server' + e});
     }

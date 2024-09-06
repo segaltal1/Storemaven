@@ -1,5 +1,6 @@
 import express, {Request, Response} from 'express';
 import userRouter from "./routes/userRouter";
+import {connectDB} from "./db/index.";
 
 const cors = require('cors');
 
@@ -13,6 +14,8 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Connect to MongoDB
+connectDB();
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Server is running')
