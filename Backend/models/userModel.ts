@@ -1,7 +1,6 @@
 import mongoose, {Document, Schema} from "mongoose";
 import {UserType} from "../types";
 
-
 type UserModelType = Document & UserType;
 
 const userSchema = new Schema<UserModelType>({

@@ -1,5 +1,6 @@
 import {Router} from 'express';
-import {createUser, getUsersScores, updateUserScore} from "../controllers/usersController";
+import {createUser} from "../controllers/usersController";
+import {getUsersScores, updateUserScore} from "../controllers/usersScoreController";
 
 const router = Router();
 

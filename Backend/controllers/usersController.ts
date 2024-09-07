@@ -5,19 +5,6 @@ import {UserModel} from "../models/userModel";
 import {UserScoreModel} from "../models/userScoreModel";
 
 
-export const getUsersScores = async (req: Request, res: Response) => {
-
-    try {
-        const usersScores = await UserScoreModel.find()
-            .sort({stepsCompleted: -1})
-            .limit(100)
-
-        res.send({usersScores});
-    } catch (error) {
-        res.status(500).send('Error in the server' + error);
-    }
-}
-
 export const createUser = async (req: Request, res: Response) => {
 
     try {
@@ -44,7 +31,6 @@ export const createUser = async (req: Request, res: Response) => {
         };
 
         await UserModel.create(newUser);
-        await UserScoreModel.create({username, stepsCompleted: 0});
 
         return res.send({newUser});
 
@@ -53,21 +39,3 @@ export const createUser = async (req: Request, res: Response) => {
     }
 }
 
-export const updateUserScore = async (req: Request, res: Response) => {
-    try {
-        const {userId, stepsCompleted} = req.body;
-
-        if (!userId|| isNaN(Number(stepsCompleted))) {
-            return res.status(400).json({error: 'Invalid parameters'});
-        }
-
-        const updatedUserCore = await UserScoreModel.findByIdAndUpdate(userId, {stepsCompleted});
-        if (!updatedUserCore) {
-            return res.status(404).json({error: 'User not found'});
-        }
-
-        return res.send({message: 'User score updated', updatedUserCore});
-    } catch (e) {
-        return res.status(500).json({error: 'Error in the server' + e});
-    }
-}

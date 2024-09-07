@@ -1,12 +1,14 @@
+import mongoose from "mongoose";
+
 export type UserType = {
     username: string;
-    gender:  string;
+    gender: string;
     email?: string;
     lastName?: string;
     city?: string;
 }
 
 export type UserScoreType = {
-    username: string;
+    userId: mongoose.Schema.Types.ObjectId;
     stepsCompleted: number;
 }
