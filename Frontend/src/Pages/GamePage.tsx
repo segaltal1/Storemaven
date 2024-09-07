@@ -6,6 +6,7 @@ import {Shape} from "../Components/Shape";
 import {FloatingMessage} from "../Components/FloatingMessage";
 import {INDICATOR_KEYS} from "../Helpers/consts";
 import {DirectionTypes} from "../Helpers/types";
+import {ApiService} from "../Services/api";
 
 export const GamePage = () => {
     const {
@@ -13,7 +14,10 @@ export const GamePage = () => {
         setGameState,
         shapeDirection,
         finalMessage,
-        setFinalMessage
+        setFinalMessage,
+        userScore,
+        setUserScore,
+        userObject
     } = useAppContext();
 
     const [isTypedAnyKey, setIsTypedAnyKey] = useState(false);
@@ -23,12 +27,12 @@ export const GamePage = () => {
         if (gameState === 'Playing') {
             if (userDirectionChoice === shapeDirection) {
                 setFinalMessage('Success');
+                setUserScore(userScore + 1);
             } else {
                 setFinalMessage('Wrong key');
             }
             setGameState('GameOver');
         }
-
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -52,7 +56,6 @@ export const GamePage = () => {
     }, [])
 
 
-
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown)
 
@@ -63,7 +66,7 @@ export const GamePage = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown)
         }
-    }, [gameState, shapeDirection, isTypedAnyKey])
+    }, [gameState, shapeDirection, isTypedAnyKey, userScore])
 
     useEffect(() => {
         if (gameState === 'GameOver') {
@@ -75,6 +78,17 @@ export const GamePage = () => {
         }
 
     }, [gameState])
+
+    useEffect(() => {
+        console.log('userScore changed', {
+            userObject,
+            userScore
+        })
+        if (userObject) {
+            ApiService.updateUserScore(userObject.userId, userScore)
+        }
+
+    }, [userScore, userObject])
 
     const isShowFloatingMessage = useMemo(() => {
         return gameState === 'GameOver' || gameState === 'Loading' && finalMessage

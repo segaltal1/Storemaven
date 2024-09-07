@@ -1,15 +1,27 @@
 import {useAppContext} from "../MainContext/AppContext";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
+import {ApiService} from "../Services/api";
 
 export const IntroPage = () => {
-    const {username, setUsername} = useAppContext();
-    const [localUsername, setLocalUserName] = useState<string>(username || '');
+    const {userObject, setUserObject} = useAppContext();
+    const [localUsername, setLocalUserName] = useState<string>(userObject?.username || '');
     const navigate = useNavigate();
 
-    const handleEnterButton = () => {
-        setUsername(localUsername)
-        navigate('/board')
+    const handleEnterButton = async () => {
+        try {
+            const res = await ApiService.saveUsername(localUsername)
+            if (res && res.createdUser) {
+                setUserObject({
+                    username: res.createdUser.username,
+                    userId: res.createdUser._id
+                })
+
+                navigate('/board')
+            }
+        } catch (e) {
+            console.error(e)
+        }
     }
 
 

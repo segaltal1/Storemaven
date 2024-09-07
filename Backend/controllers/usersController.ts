@@ -30,9 +30,10 @@ export const createUser = async (req: Request, res: Response) => {
             city: mockData?.city ?? ''
         };
 
-        await UserModel.create(newUser);
+        const createdUser = await UserModel.create(newUser);
+        await UserScoreModel.create({userId: createdUser._id, stepsCompleted: 0});
 
-        return res.send({newUser});
+        return res.send({createdUser});
 
     } catch (e) {
         return res.status(500).json({error: 'Error in the server' + e});

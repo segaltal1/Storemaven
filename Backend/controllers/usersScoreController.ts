@@ -9,7 +9,7 @@ export const getUsersScores = async (req: Request, res: Response) => {
         const usersScores = await UserScoreModel.aggregate([
             {
                 $addFields: {
-                    userIdObject: {$toObjectId: "$userId"}  // Convert userId to ObjectId
+                    userIdObject: {$toObjectId: "$userId"}
                 }
             },
             {
@@ -29,7 +29,7 @@ export const getUsersScores = async (req: Request, res: Response) => {
                     stepsCompleted: 1
                 }
             }
-        ])
+        ]).sort({stepsCompleted: -1}).limit(100);
 
         res.send({usersScores});
     } catch (error) {
