@@ -25,6 +25,7 @@ const saveUsername = async (username: string): Promise<ResponseType> => {
         return await response.json();
     } catch (e) {
         console.log(e, 'error occurred while creating user');
+        throw e;
     }
 }
 

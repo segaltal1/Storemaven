@@ -31,8 +31,6 @@ export const createUser = async (req: Request, res: Response) => {
         };
 
         const createdUser = await UserModel.create(newUser);
-        await UserScoreModel.create({userId: createdUser._id, stepsCompleted: 0});
-
         return res.send({createdUser});
 
     } catch (e) {
