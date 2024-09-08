@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Header} from "../Components/Header";
 import {useAppContext} from "../MainContext/AppContext";
 import {Loader} from "../Components/Loader";
@@ -23,7 +23,7 @@ export const GamePage = () => {
     const [isTypedAnyKey, setIsTypedAnyKey] = useState(false);
 
 
-    const handleUserChoice = (userDirectionChoice: DirectionTypes) => {
+    const handleUserChoice = useCallback((userDirectionChoice: DirectionTypes) => {
         if (gameState === 'Playing') {
             if (userDirectionChoice === shapeDirection) {
                 setFinalMessage('Success');
@@ -33,9 +33,9 @@ export const GamePage = () => {
             }
             setGameState('GameOver');
         }
-    }
+    }, [gameState, shapeDirection, userScore])
 
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = useCallback((e: KeyboardEvent) => {
         setIsTypedAnyKey(true);
 
         if (gameState === 'Loading') {
@@ -49,7 +49,7 @@ export const GamePage = () => {
         } else if (e.key === INDICATOR_KEYS.left) {
             handleUserChoice('left')
         }
-    }
+    }, [gameState, shapeDirection, isTypedAnyKey, userScore])
 
     useEffect(() => {
         setGameState('Loading')
@@ -80,10 +80,6 @@ export const GamePage = () => {
     }, [gameState])
 
     useEffect(() => {
-        console.log('userScore changed', {
-            userObject,
-            userScore
-        })
         if (userObject) {
             ApiService.updateUserScore(userObject.userId, userScore)
         }
